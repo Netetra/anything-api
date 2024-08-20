@@ -12,8 +12,8 @@ use crate::service::user::UserServiceTrait;
 use crate::state::AppState;
 
 pub async fn user_list(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    let service = &state.clone().user;
-    match service.get_user_list().await {
+    let users = state.user.get_user_list().await;
+    match users {
         Ok(users) => (StatusCode::OK, Json(users)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
     }
@@ -29,15 +29,13 @@ pub async fn register(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<RegisterPayload>,
 ) -> impl IntoResponse {
-    let service = &state.clone().user;
-
     let model = user::ActiveModel {
         id: ActiveValue::NotSet,
         name: ActiveValue::Set(payload.name),
         password: ActiveValue::Set(payload.password),
     };
 
-    match service.create_user(model).await {
+    match state.user.create_user(model).await {
         Ok(_) => (StatusCode::OK).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
     }

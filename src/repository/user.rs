@@ -1,4 +1,4 @@
-use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait};
+use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter};
 
 use crate::entity::user;
 
@@ -9,6 +9,7 @@ pub struct UserRepository {
 pub trait UserRepositoryTrait {
     async fn save(&self, model: user::ActiveModel) -> Result<(), DbErr>;
     async fn get_all(&self) -> Result<Vec<user::Model>, DbErr>;
+    async fn find_by_name(&self, name: &str) -> Result<Option<user::Model>, DbErr>;
 }
 
 impl UserRepository {
@@ -24,5 +25,11 @@ impl UserRepositoryTrait for UserRepository {
     }
     async fn get_all(&self) -> Result<Vec<user::Model>, DbErr> {
         user::Entity::find().all(&self.db).await
+    }
+    async fn find_by_name(&self, name: &str) -> Result<Option<user::Model>, DbErr> {
+        user::Entity::find()
+            .filter(user::Column::Name.eq(name))
+            .one(&self.db)
+            .await
     }
 }

@@ -2,7 +2,7 @@ use std::{net::SocketAddrV4, sync::Arc};
 
 use axum::Router;
 use migration::{Migrator, MigratorTrait};
-use router::{greet, user};
+use router::{auth, greet, user};
 use sea_orm::Database;
 use setting::read_settings;
 use state::AppState;
@@ -27,6 +27,7 @@ async fn main() {
     let router = Router::new()
         .nest("/greet", greet::router())
         .nest("/user", user::router())
+        .nest("/auth", auth::router())
         .with_state(state);
 
     let addr = format!("{}:{}", settings.server.ip, settings.server.port);
