@@ -7,8 +7,8 @@ pub struct UserRepository {
 }
 
 pub trait UserRepositoryTrait {
-    async fn register(&self, model: user::ActiveModel) -> Result<(), DbErr>;
-    async fn get_list(&self) -> Result<Vec<user::Model>, DbErr>;
+    async fn save(&self, model: user::ActiveModel) -> Result<(), DbErr>;
+    async fn get_all(&self) -> Result<Vec<user::Model>, DbErr>;
 }
 
 impl UserRepository {
@@ -18,11 +18,11 @@ impl UserRepository {
 }
 
 impl UserRepositoryTrait for UserRepository {
-    async fn register(&self, model: user::ActiveModel) -> Result<(), DbErr> {
+    async fn save(&self, model: user::ActiveModel) -> Result<(), DbErr> {
         let _ = model.insert(&self.db).await?;
         Ok(())
     }
-    async fn get_list(&self) -> Result<Vec<user::Model>, DbErr> {
+    async fn get_all(&self) -> Result<Vec<user::Model>, DbErr> {
         user::Entity::find().all(&self.db).await
     }
 }

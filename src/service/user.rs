@@ -10,8 +10,8 @@ pub struct UserService {
 }
 
 pub trait UserServiceTrait {
-    async fn register(&self, name: String, password: String) -> Result<(), DbErr>;
-    async fn get_list(&self) -> Result<Vec<user::Model>, DbErr>;
+    async fn create_user(&self, model: user::ActiveModel) -> Result<(), DbErr>;
+    async fn get_user_list(&self) -> Result<Vec<user::Model>, DbErr>;
 }
 
 impl UserService {
@@ -23,16 +23,11 @@ impl UserService {
 }
 
 impl UserServiceTrait for UserService {
-    async fn register(&self, name: String, password: String) -> Result<(), DbErr> {
-        let model = user::ActiveModel {
-            id: ActiveValue::NotSet,
-            name: ActiveValue::Set(name),
-            password: ActiveValue::Set(password),
-        };
-        self.repo.register(model).await?;
+    async fn create_user(&self, model: user::ActiveModel) -> Result<(), DbErr> {
+        self.repo.save(model).await?;
         Ok(())
     }
-    async fn get_list(&self) -> Result<Vec<user::Model>, DbErr> {
-        self.repo.get_list().await
+    async fn get_user_list(&self) -> Result<Vec<user::Model>, DbErr> {
+        self.repo.get_all().await
     }
 }
