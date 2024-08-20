@@ -1,4 +1,4 @@
-use sea_orm::{DatabaseConnection, DbErr, EntityTrait};
+use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait};
 
 use crate::entity::user;
 
@@ -7,6 +7,7 @@ pub struct UserRepository {
 }
 
 pub trait UserRepositoryTrait {
+    async fn register(&self, model: user::ActiveModel) -> Result<(), DbErr>;
     async fn get_list(&self) -> Result<Vec<user::Model>, DbErr>;
 }
 
@@ -17,6 +18,10 @@ impl UserRepository {
 }
 
 impl UserRepositoryTrait for UserRepository {
+    async fn register(&self, model: user::ActiveModel) -> Result<(), DbErr> {
+        let _ = model.insert(&self.db).await?;
+        Ok(())
+    }
     async fn get_list(&self) -> Result<Vec<user::Model>, DbErr> {
         user::Entity::find().all(&self.db).await
     }
