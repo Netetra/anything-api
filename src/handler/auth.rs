@@ -18,20 +18,20 @@ pub async fn login(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<LoginPayload>,
 ) -> impl IntoResponse {
-    let user = state.user.find_by_name(&payload.name).await;
+    let user = match state.user.find_by_name(&payload.name).await {
+        Ok(Some(user)) => user,
+        Ok(None) => return (StatusCode::NOT_FOUND).into_response(),
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
+    };
 
-    match user {
-        Ok(Some(user)) => {
-            let result = state
-                .auth
-                .verify_password(&payload.password, &user.password)
-                .await;
-            match result {
-                Ok(_) => (StatusCode::OK).into_response(),
-                Err(_) => (StatusCode::UNAUTHORIZED).into_response(),
-            }
-        }
-        Ok(None) => (StatusCode::NOT_FOUND).into_response(),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
+    if (state
+        .auth
+        .verify_password(&payload.password, &user.password)
+        .await)
+        .is_err()
+    {
+        return (StatusCode::UNAUTHORIZED).into_response();
     }
+
+    (StatusCode::OK).into_response()
 }

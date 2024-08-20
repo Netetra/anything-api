@@ -12,11 +12,12 @@ use crate::service::user::UserServiceTrait;
 use crate::state::AppState;
 
 pub async fn user_list(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    let users = state.user.get_user_list().await;
-    match users {
-        Ok(users) => (StatusCode::OK, Json(users)).into_response(),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
-    }
+    let users = match state.user.get_user_list().await {
+        Ok(users) => users,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
+    };
+
+    (StatusCode::OK, Json(users)).into_response()
 }
 
 #[derive(Deserialize)]

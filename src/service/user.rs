@@ -24,8 +24,7 @@ impl UserService {
 
 impl UserServiceTrait for UserService {
     async fn create_user(&self, model: user::ActiveModel) -> Result<(), DbErr> {
-        self.user_repo.save(model).await?;
-        Ok(())
+        self.user_repo.save(model).await
     }
     async fn get_user_list(&self) -> Result<Vec<user::Model>, DbErr> {
         self.user_repo.get_all().await
