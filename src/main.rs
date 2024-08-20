@@ -2,12 +2,13 @@ use std::{net::SocketAddrV4, sync::Arc};
 
 use axum::Router;
 use migration::{Migrator, MigratorTrait};
-use router::greet;
+use router::{greet, user};
 use sea_orm::Database;
 use setting::read_settings;
 use state::AppState;
 use tokio::net::TcpListener;
 
+mod entity;
 mod handler;
 mod repository;
 mod router;
@@ -25,6 +26,7 @@ async fn main() {
     let state = Arc::new(AppState::new(db));
     let router = Router::new()
         .nest("/greet", greet::router())
+        .nest("/user", user::router())
         .with_state(state);
 
     let addr = format!("{}:{}", settings.server.ip, settings.server.port);
