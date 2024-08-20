@@ -13,10 +13,16 @@ pub fn read_settings(file_name: &str) -> Result<Settings, ConfigError> {
 #[derive(Deserialize)]
 pub struct Settings {
     pub server: ServerSettings,
+    pub database: DbSettings,
 }
 
 #[derive(Deserialize)]
 pub struct ServerSettings {
     pub ip: String,
     pub port: u16,
+}
+
+#[derive(Deserialize)]
+pub struct DbSettings {
+    pub url: String,
 }
