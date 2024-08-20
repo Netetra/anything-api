@@ -2,11 +2,13 @@ use std::{net::SocketAddrV4, sync::Arc};
 
 use axum::Router;
 use router::greet;
+use sea_orm::Database;
 use setting::read_settings;
 use state::AppState;
 use tokio::net::TcpListener;
 
 mod handler;
+mod repository;
 mod router;
 mod service;
 mod setting;
@@ -16,7 +18,9 @@ mod state;
 async fn main() {
     let settings = read_settings("config").unwrap();
 
-    let state = Arc::new(AppState::new());
+    let db = Database::connect(settings.database.url).await.unwrap();
+
+    let state = Arc::new(AppState::new(db));
     let router = Router::new()
         .nest("/greet", greet::router())
         .with_state(state);
